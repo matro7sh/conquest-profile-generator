@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Conquest Profile Generator</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<h1>Conquest Profile Generator</h1>
+<h2>if you want to use cobalt profile, please use cli .py</h2>
+
+<div class="controls">
+    <div class="select-wrapper">
+        <select id="template">
+            {% for t in templates %}
+                <option value="{{ t }}">{{ t }}</option>
+            {% endfor %}
+        </select>
+        <span class="arrow">▼</span>
+    </div>
+    <button onclick="generateProfiles()">Generate profile</button>
+</div>
+
+<div class="container" id="results">
+    <div class="panel">
+        <button class="copy-btn" onclick="copy('output1')">Copy</button>
+        <pre id="output1"></pre>
+    </div>
+    <div class="panel">
+        <button class="copy-btn" onclick="copy('output2')">Copy</button>
+        <pre id="output2"></pre>
+    </div>
+</div>
+
+<script>
+function getTemplate() {
+    return document.getElementById("template").value;
+}
+
+function generateProfiles() {
+    fetch("/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ template: getTemplate() })
+    })
+    .then(res => res.json())
+    .then(data => {
+        const out1 = document.getElementById("output1");
+        const out2 = document.getElementById("output2");
+
+        out1.textContent = data.left;
+        out2.textContent = data.right;
+
+        document.getElementById("results").classList.add("visible");
+    })
+    .catch(err => alert("Erreur: " + err));
+}
+
+function copy(id) {
+    const text = document.getElementById(id).textContent;
+    navigator.clipboard.writeText(text);
+}
+</script>
+
+</body>
+</html>
